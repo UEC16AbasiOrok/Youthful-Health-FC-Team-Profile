@@ -83,6 +83,26 @@
                     <option value="access-bank">Access Bank</option>
                     <option value="citibank">Citibank</option>
                     <option value="diamond-bank">Diamond Bank</option>
+                    <option value="ecobank">Ecobank</option>
+                    <option value="fidelity-bank">Fidelity Bank</option>
+                    <option value="first-bank">First Bank</option>
+                    <option value="fcmb">First City Monument Bank (FCMB)</option>
+                    <option value="gtb">Guaranty Trust Bank (GTB)</option>
+                    <option value="heritage-bank">Heritage Bank</option>
+                    <option value="keystone-bank">Keystone Bank</option>
+                    <option value="polaris-bank">Polaris Bank</option>
+                    <option value="providus-bank">Providus Bank</option>
+                    <option value="stanbic-ibtc-bank">Stanbic IBTC Bank</option>
+                    <option value="standard-chartered-bank">Standard Chartered Bank</option>
+                    <option value="sterling-bank">Sterling Bank</option>
+                    <option value="suntrust-bank">Suntrust Bank</option>
+                    <option value="union-bank">Union Bank</option>
+                    <option value="uba">United Bank for Africa (UBA)</option>
+                    <option value="unity-bank">Unity Bank</option>
+                    <option value="wema-bank">Wema Bank</option>
+                    <option value="opay">OPAY</option>
+                    <option value="Palmpay">PALMPAY</option>
+                    <option value="zenith-bank">Zenith Bank</option>
                     <!-- Add more bank options here -->
                 </select>
             </div>
