@@ -127,7 +127,7 @@
     </div>
     <script>
         document.getElementById('withdrawalForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+            // Remove event.preventDefault() to allow form submission
             // Simulate form submission success or error
             const isSuccess = true; // Change to false to simulate an error
             if (isSuccess) {
