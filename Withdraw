@@ -119,7 +119,7 @@
             </div>
         </form>
         <div class="success-message" id="successMessage">
-            Your withdrawal form has been successfully submitted!
+            Your withdrawal form has been successfully submitted! you will receive payment in 48 hours. Thank you for choosing EMPIRE
         </div>
         <div class="error-message" id="errorMessage">
             There was an error submitting your form. Please try again.
@@ -127,7 +127,6 @@
     </div>
     <script>
         document.getElementById('withdrawalForm').addEventListener('submit', function(event) {
-            // Remove event.preventDefault() to allow form submission
             // Simulate form submission success or error
             const isSuccess = true; // Change to false to simulate an error
             if (isSuccess) {
