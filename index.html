@@ -336,7 +336,7 @@
   <div id="loader" class="loader-wrap" role="status" aria-label="Loading content">
     <div class="loader-inner" aria-hidden="false">
       <!-- Replace ./assets/your-image.jpg with your actual image file path; fallback will be used if missing -->
-      <img id="loaderAvatar" class="loader-avatar" src="./assets/your-image.jpg" alt="Loader image" onerror="this.src='https://i.pravatar.cc/200?img=47'">
+      <img id="loaderAvatar" class="loader-avatar" src="./assets/your-image.jpg" alt="Loader image" onerror="this.src='AddText_10-27-09.04.08.png">
       <div class="loader-title">Youthful Health FC</div>
       <div class="loader-sub">Preparing the squad... this will take about 6 seconds</div>
     </div>
@@ -345,11 +345,11 @@
   <main class="container" id="app" aria-live="polite" style="opacity:0; transform:translateY(8px); transition:all .5s ease;">
     <div class="team-card" role="region" aria-labelledby="teamTitle">
       <div class="team-image" aria-hidden="false">
-        <img id="teamImg" src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=6f3f2f60c361b9ef9e92a5d3d60a5a9b" alt="Team image">
+        <img id="teamImg" src="AddText_10-27-09.04.08.png" alt="Team image">
       </div>
       <div class="team-info">
         <div id="teamTitle" class="team-name">Youthful Health FC</div>
-        <div class="team-meta">Founded: <span id="founded">2018</span></div>
+        <div class="team-meta">Founded: <span id="founded">2025</span></div>
 
         <div class="info-grid">
           <div class="person" title="Head Coach">
@@ -388,12 +388,12 @@
         <div class="row" style="margin-top:8px">
           <div class="info-block">
             <div style="font-weight:700">Stadium</div>
-            <div id="stadium" class="team-meta">Youthful Arena — Eastside Park</div>
+            <div id="stadium" class="team-meta">Youthful Arena — Piaco Field</div>
           </div>
 
           <div class="info-block">
             <div style="font-weight:700">Training</div>
-            <div id="training" class="team-meta">Tue, Thu & Sat — 18:00 to 20:00</div>
+            <div id="training" class="team-meta">Fridays — 15:00 to 17:00</div>
           </div>
 
         </div>
@@ -422,10 +422,10 @@
     // Sample data
     const TEAM = {
       name: "Youthful Health FC",
-      founded: 2018,
-      image: "https://images.unsplash.com/photo-1521412644187-c49fa049e84d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=6f3f2f60c361b9ef9e92a5d3d60a5a9b",
-      stadium: { name: "Youthful Arena", location: "Eastside Park" },
-      training: "Tue, Thu & Sat — 18:00 to 20:00",
+      founded: 2025,
+      image: "AddText_10-27-09.04.08.png",
+      stadium: { name: "Youthful Arena", location: "Piaco Field" },
+      training: "Friday — 15:00 to 17:00",
       headCoach: { name: "Marcus Osei", img: "https://i.pravatar.cc/100?img=12" },
       assistantCoach: { name: "Lydia Mensah", img: "https://i.pravatar.cc/100?img=13" },
       captain: { name: "Samuel Boateng", img: "https://i.pravatar.cc/100?img=14" },
@@ -444,21 +444,21 @@
     // Next fixture (set to null to show "no fixture" notice)
     const NEXT_FIXTURE = {
       home: { name: "Youthful Health FC", img: TEAM.image },
-      away: { name: "Riverbank United", img: "https://images.unsplash.com/photo-1520975913036-3c8af5b6ec9f?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=00fdaa9e0b06d3b6b65d69a60a27b2ea" },
-      odds: { home: 1.95, draw: 3.4, away: 3.6 }, // decimal odds 1X2
-      venue: TEAM.stadium.name + " — " + TEAM.stadium.location,
-      date: "2025-11-02",
-      time: "16:00"
+      away: { name: "The Rock FC", img: "https://images.unsplash.com/photo-1520975913036-3c8af5b6ec9f?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=00fdaa9e0b06d3b6b65d69a60a27b2ea" },
+      odds: { home: 2.90, draw: 3.35, away: 2.25 }, // decimal odds 1X2
+      venue: TEAM.stadium.name + Youthful Arena" — Piaco Field" + TEAM.stadium.location,
+      date: "2025-12-05",
+      time: "15:00"
     };
 
     // Past results
     const PAST_RESULTS = [
       {
         home: { name: "Youthful Health FC", img: TEAM.image },
-        away: { name: "Seaside Rovers", img: "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=9d7c2b3b2c365d2f3b95f3e5d1f5bb7f" },
-        ht: "1-0",
-        ft: "2-1",
-        date: "2025-08-21"
+        away: { name: "The Rock FC", img: "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=9d7c2b3b2c365d2f3b95f3e5d1f5bb7f" },
+        ht: "-",
+        ft: "-",
+        date: "2025-12-05"
       }
     ];
 
