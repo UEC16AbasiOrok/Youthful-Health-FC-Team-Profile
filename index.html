@@ -336,7 +336,7 @@
   <div id="loader" class="loader-wrap" role="status" aria-label="Loading content">
     <div class="loader-inner" aria-hidden="false">
       <!-- Replace ./assets/your-image.jpg with your actual image file path; fallback will be used if missing -->
-      <img id="loaderAvatar" class="loader-avatar" src="./assets/your-image.jpg" alt="Loader image" onerror="this.src='AddText_10-27-09.04.08.png">
+      <img id="loaderAvatar" class="loader-avatar" src="./assets/your-image.jpg" alt="Loader image" onerror="this.src='https://i.pravatar.cc/120?img=47'">
       <div class="loader-title">Youthful Health FC</div>
       <div class="loader-sub">Preparing the squad... this will take about 6 seconds</div>
     </div>
@@ -419,6 +419,22 @@
   </div>
 
   <script>
+    // Quick global error handler to avoid loader getting stuck on unexpected runtime errors.
+    window.addEventListener('error', (ev) => {
+      console.error('Unhandled error:', ev.error || ev.message);
+      const loader = document.getElementById('loader');
+      const app = document.getElementById('app');
+      if (loader) {
+        loader.style.opacity = 0;
+        loader.style.visibility = 'hidden';
+        loader.setAttribute('aria-hidden', 'true');
+      }
+      if (app) {
+        app.style.opacity = 1;
+        app.style.transform = 'translateY(0)';
+      }
+    });
+
     // Sample data
     const TEAM = {
       name: "Youthful Health FC",
@@ -446,7 +462,8 @@
       home: { name: "Youthful Health FC", img: TEAM.image },
       away: { name: "The Rock FC", img: "AddText_07-18-06.02.36.png" },
       odds: { home: 2.90, draw: 3.35, away: 2.25 }, // decimal odds 1X2
-      venue: TEAM.stadium.name + Youthful Arena" — Piaco Field" + TEAM.stadium.location,
+      // Fixed string concatenation for venue
+      venue: TEAM.stadium.name + " — " + TEAM.stadium.location,
       date: "2025-12-05",
       time: "15:00"
     };
@@ -464,46 +481,61 @@
 
     // DOM wiring
     document.addEventListener("DOMContentLoaded", () => {
-      // populate team info
-      document.getElementById("teamImg").src = TEAM.image;
-      document.getElementById("founded").textContent = TEAM.founded;
-      document.getElementById("stadium").textContent = TEAM.stadium.name + " — " + TEAM.stadium.location;
-      document.getElementById("training").textContent = TEAM.training;
-      document.getElementById("headCoach").textContent = TEAM.headCoach.name;
-      document.getElementById("headCoachImg").src = TEAM.headCoach.img;
-      document.getElementById("asstCoach").textContent = TEAM.assistantCoach.name;
-      document.getElementById("asstCoachImg").src = TEAM.assistantCoach.img;
-      document.getElementById("captain").textContent = TEAM.captain.name;
-      document.getElementById("captainImg").src = TEAM.captain.img;
-      document.getElementById("asstCaptain").textContent = TEAM.assistantCaptain.name;
-      document.getElementById("asstCapImg").src = TEAM.assistantCaptain.img;
+      try {
+        // populate team info
+        document.getElementById("teamImg").src = TEAM.image;
+        document.getElementById("founded").textContent = TEAM.founded;
+        document.getElementById("stadium").textContent = TEAM.stadium.name + " — " + TEAM.stadium.location;
+        document.getElementById("training").textContent = TEAM.training;
+        document.getElementById("headCoach").textContent = TEAM.headCoach.name;
+        document.getElementById("headCoachImg").src = TEAM.headCoach.img;
+        document.getElementById("asstCoach").textContent = TEAM.assistantCoach.name;
+        document.getElementById("asstCoachImg").src = TEAM.assistantCoach.img;
+        document.getElementById("captain").textContent = TEAM.captain.name;
+        document.getElementById("captainImg").src = TEAM.captain.img;
+        document.getElementById("asstCaptain").textContent = TEAM.assistantCaptain.name;
+        document.getElementById("asstCapImg").src = TEAM.assistantCaptain.img;
 
-      // buttons
-      const btnPlayers = document.getElementById("btnPlayers");
-      const btnFixture = document.getElementById("btnFixture");
-      const btnResults = document.getElementById("btnResults");
-      const btnTerms = document.getElementById("btnTerms");
-      btnPlayers.addEventListener("click", () => openWithLoading(showPlayers));
-      btnFixture.addEventListener("click", () => openWithLoading(showFixtureCompact));
-      btnResults.addEventListener("click", () => openWithLoading(showResultsCompact));
-      btnTerms.addEventListener("click", () => openWithLoading(showTermsCompact));
+        // buttons
+        const btnPlayers = document.getElementById("btnPlayers");
+        const btnFixture = document.getElementById("btnFixture");
+        const btnResults = document.getElementById("btnResults");
+        const btnTerms = document.getElementById("btnTerms");
+        btnPlayers.addEventListener("click", () => openWithLoading(showPlayers));
+        btnFixture.addEventListener("click", () => openWithLoading(showFixtureCompact));
+        btnResults.addEventListener("click", () => openWithLoading(showResultsCompact));
+        btnTerms.addEventListener("click", () => openWithLoading(showTermsCompact));
 
-      // modal close
-      document.getElementById("modalClose").addEventListener("click", closeModal);
-      document.getElementById("overlay").addEventListener("click", (e) => {
-        if(e.target === document.getElementById("overlay")) closeModal();
-      });
+        // modal close
+        document.getElementById("modalClose").addEventListener("click", closeModal);
+        document.getElementById("overlay").addEventListener("click", (e) => {
+          if(e.target === document.getElementById("overlay")) closeModal();
+        });
 
-      // initial fullscreen loader (6s)
-      const loader = document.getElementById("loader");
-      const app = document.getElementById("app");
-      setTimeout(() => {
-        loader.style.opacity = 0;
-        loader.style.visibility = "hidden";
-        loader.setAttribute("aria-hidden", "true");
-        app.style.opacity = 1;
-        app.style.transform = "translateY(0)";
-      }, 6000);
+        // initial fullscreen loader (6s)
+        const loader = document.getElementById("loader");
+        const app = document.getElementById("app");
+        setTimeout(() => {
+          loader.style.opacity = 0;
+          loader.style.visibility = "hidden";
+          loader.setAttribute("aria-hidden", "true");
+          app.style.opacity = 1;
+          app.style.transform = "translateY(0)";
+        }, 6000);
+      } catch (err) {
+        // If something unexpected happens, log and reveal UI to avoid stuck loader.
+        console.error('Initialization error:', err);
+        const loader = document.getElementById("loader");
+        const app = document.getElementById("app");
+        if (loader) {
+          loader.style.opacity = 0;
+          loader.style.visibility = "hidden";
+        }
+        if (app) {
+          app.style.opacity = 1;
+          app.style.transform = "translateY(0)";
+        }
+      }
     });
 
     // Modal helpers
@@ -529,10 +561,13 @@
     function openWithLoading(renderer){
       disableButtons();
       const loadingHtml = `
-        <div class="modal-head"><h2 id="modalTitle">Loading…</h2><div class="controls"><button class="btn small secondary" onclick="closeModal()">Close</button></div></div>
+        <div class="modal-head">
+          <h2 id="modalTitle">Loading…</h2>
+          <div class="controls"><button class="btn small secondary" onclick="closeModal()">Close</button></div>
+        </div>
         <div class="modal-loader">
           <div style="display:flex;align-items:center;gap:12px;">
-            <img src="./assets/your-image.jpg" alt="" onerror="this.src='https://i.pravatar.cc/80?img=47'" style="width:56px;height:56px;border-radius:8px;object-fit:cover;opacity:0.95;border:2px solid rgba(255,255,255,0.04)">
+            <img src="https://i.pravatar.cc/80?img=47" alt="" style="width:56px;height:56px;border-radius:8px;object-fit:cover;opacity:0.95;border:2px solid rgba(255,255,255,0.02)">
             <div style="text-align:left">
               <div style="font-weight:700">Fetching data</div>
               <div style="color:var(--muted);font-size:13px">Please wait a moment…</div>
@@ -584,7 +619,8 @@
       if(!PLAYERS || PLAYERS.length === 0){
         return `<div class="modal-head"><h2 id="modalTitle">Players</h2></div><div class="notice">No players found for this team.</div>`;
       }
-      let html = `<div class="modal-head"><h2 id="modalTitle">Players — ${escapeHtml(TEAM.name)}</h2><div class="controls"><button class="btn small secondary" onclick="closeModal()">Close</button></div></div><div class="list">`;
+      let html = `<div class="modal-head"><h2 id="modalTitle">Players — ${escapeHtml(TEAM.name)}</h2><div class="controls"><button class="btn small secondary" onclick="closeModal()">Close</button></div></div>`;
+      html += `<div class="list" style="margin-top:10px">`;
       PLAYERS.forEach(p=>{
         html += `
           <div class="player" role="article">
@@ -712,7 +748,7 @@
           <p style="color:var(--muted)"><strong>Respect &amp; Conduct</strong></p>
           <ul>
             <li>Respect the Head Coach, Assistant Coach, Team Captain and Assistant Captain at all times. Follow their instructions during training and matches.</li>
-            <li>No foul language, abusive, discriminatory or aggressive behaviour on the pitch, in changing rooms, or immediately after training or matches. This includes verbal or physical aggression.</li>
+            <li>No foul language, abusive, discriminatory or aggressive behaviour on the pitch, in changing rooms, or immediately after training or matches. This includes verbal or physical aggression directed at teammates, officials or spectators.</li>
             <li>Maintain professional behaviour on social media when representing the club; avoid posting content that harms the club's reputation.</li>
           </ul>
 
@@ -755,7 +791,7 @@
             <li>By participating in club activities you agree to follow these rules and accept the disciplinary framework outlined above.</li>
           </ul>
 
-          <p style="margin-top:10px; color:var(--muted); font-size:13px">If you would like any specific clause added or changed (for example medical waiver wording or detailed appeals process), provide the exact text and it will be included.</p>
+          <p style="margin-top:10px; color:var(--muted); font-size:13px">If you would like any specific clause added or changed (for example medical waiver wording or detailed appeals process), provide the text and it can be added.</p>
         </div>
       `;
       return html;
