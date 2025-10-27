@@ -1,732 +1,766 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Sport Channel</title>
-    <meta name="viewport" content="width=1024, user-scalable=yes">
-    <style>
-        body { margin: 0; background: #141414; }
-        #loading-overlay {
-            position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.88);
-            display: flex; align-items: center; justify-content: center; flex-direction: column; z-index: 10000;
-        }
-        #loading-overlay img { width: 80px; height: 80px; margin-bottom: 24px; display: block; }
-        #typing-text {
-            color: #fff; font-size: 1.15rem; font-weight: 600; letter-spacing: 1px;
-            min-height: 28px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            border-right: 2px solid #ffd700; white-space: pre; overflow: hidden;
-        }
-        .header-block {
-            max-width: 800px;
-            margin: 35px auto 0 auto;
-            text-align: center;
-        }
-        .header-img {
-            width: 100%; max-width: 220px; display: block; margin: 0 auto 18px auto;
-            border-radius: 12px; box-shadow: 0 2px 16px #222;
-        }
-        .sport-channel {
-            text-align: center; color: #00c3ff; font-size: 1.16rem; font-weight: bold; margin-bottom: 18px; letter-spacing: 2px;
-        }
-        /* Modern Training Info Layout */
-        .training-layout-wrapper {
-            background: linear-gradient(135deg, #23272e 75%, #00c3ff22 100%);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 195, 255, 0.18), 0 1.5px 12px #0009;
-            padding: 32px 38px;
-            max-width: 400px;
-            width: 94vw;
-            margin: 24px auto 0 auto;
-            border-left: 8px solid #ffd700;
-            display: block;
-        }
-        .training-title {
-            color: #ffd700;
-            font-size: 1.45rem;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-align: center;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 8px #23272e77;
-        }
-        .training-row {
-            display: flex;
-            align-items: flex-start;
-            padding: 13px 0;
-            border-bottom: 1px solid #222a35;
-            gap: 12px;
-        }
-        .training-row:last-child {
-            border-bottom: none;
-        }
-        .training-label {
-            color: #00c3ff;
-            font-weight: 600;
-            min-width: 80px;
-            font-size: 1.05rem;
-            flex-shrink: 0;
-            letter-spacing: 1px;
-            margin-top: 2px;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-        }
-        .training-value {
-            color: #fff;
-            font-size: 1.09rem;
-            font-weight: 500;
-            flex: 1;
-            word-break: break-word;
-            line-height: 1.6;
-        }
-        .training-icon {
-            width: 26px;
-            height: 26px;
-            vertical-align: middle;
-            filter: drop-shadow(0 1px 4px #00c3ff44);
-        }
-        /* --- existing styles below --- */
-        .player-stats-container {
-            max-width: 800px;
-            margin: 24px auto 18px auto;
-            background: #23272e;
-            border-radius: 16px;
-            padding: 28px 18px 28px 18px;
-            box-shadow: 0 4px 32px rgba(0,0,0,0.34);
-        }
-        .player-stats-title {
-            color: #ffd700;
-            font-size: 1.4rem;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 18px;
-            letter-spacing: 1.5px;
-        }
-        .toggle-section-btn {
-            display: block;
-            margin: 0 auto 16px auto;
-            background: #ffd700;
-            color: #181818;
-            font-weight: bold;
-            padding: 10px 22px;
-            border: none;
-            border-radius: 24px;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 2px 10px #0004;
-            transition: background 0.2s;
-        }
-        .toggle-section-btn[aria-expanded="true"] { background: #2ecc40; color: #fff; }
-        .toggle-section-btn[aria-expanded="false"] { background: #ffd700; color: #181818; }
-        .player-stats-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0 auto 10px auto;
-            background: transparent;
-        }
-        .player-stats-table th {
-            background: #ffd700;
-            color: #181818;
-            font-weight: bold;
-            font-size: 1.1rem;
-            border-bottom: 3px solid #222;
-        }
-        .player-stats-table td {
-            color: #fff;
-            font-size: 1rem;
-            background: #24282f;
-        }
-        .player-stats-table tr:nth-child(even) td { background: #31363f; }
-        .player-number { color: #ffd700 !important; font-weight: bold; }
-        .player-name { color: #00c3ff !important; font-weight: bold; }
-        .player-position { color: #63e6be !important; font-weight: bold; }
-        .player-goals { color: #2ecc40 !important; font-weight: bold; }
-        .player-assists { color: #ff9800 !important; font-weight: bold; }
-        .fixture-container { max-width: 600px; margin: 48px auto; background: #181818; border-radius: 14px; box-shadow: 0 4px 32px rgba(0,0,0,0.4); padding: 32px 18px 48px 18px; position:relative;}
-        .fixture-block { margin-bottom: 32px; background: #1f232a; border-radius: 12px; box-shadow: 0 2px 10px #0005; position:relative; }
-        .fixture-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 9px; text-align: center; color: #ffd700; letter-spacing: 1px; }
-        .fixture-time { text-align: center; margin-bottom: 28px; font-size: 1.1rem; color: #00c3ff; }
-        .teams-row { display: flex; justify-content: center; align-items: center; gap: 48px; margin-bottom: 22px; }
-        .team { display: flex; flex-direction: column; align-items: center; }
-        .team img { width: 92px; height: 92px; border-radius: 50%; object-fit: cover; border: 3px solid #222; background: #272727; margin-bottom: 7px; }
-        .team-name { font-size: 1.12rem; font-weight: 600; color: #fff; text-align: center; margin-top: 2px; max-width: 130px; }
-        .vs { font-size: 2.4rem; font-weight: bold; color: #ffd700; margin: 0 18px; background: #000; border-radius: 50%; width: 74px; height: 74px; display: flex; align-items: center; justify-content: center;}
-        .toggle-buttons { display: flex; justify-content: center; gap: 14px; margin-bottom: 24px; }
-        .toggle-btn { background: #23272e; border: 2px solid #ffd700; color: #ffd700; padding: 7px 24px; border-radius: 30px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.18s, color 0.18s;}
-        .toggle-btn.active { background: #ffd700; color: #181818; }
-        .stats-bar { margin-bottom: 24px; }
-        .stat-row { display: flex; align-items: center; margin: 10px 0; }
-        .stat-label { width: 110px; text-align: center; color: #ffd700; font-weight: 600; font-size: 1rem; }
-        .stat-bar-outer { flex: 1; display: flex; align-items: center; }
-        .stat-bar-inner { height: 16px; border-radius: 8px; margin: 0 8px; background: #23272e; position: relative; flex: 1; display: flex; }
-        .stat-bar-home { background: linear-gradient(90deg, #0a3773 80%, #23272e 100%); border-top-left-radius: 8px; border-bottom-left-radius: 8px; height: 100%; }
-        .stat-bar-away { background: linear-gradient(270deg, #6d081b 80%, #23272e 100%); border-top-right-radius: 8px; border-bottom-right-radius: 8px; height: 100%; }
-        .stat-value { width: 42px; text-align: center; font-weight: bold; color: #fff; }
-        .score-section { margin-top: 22px; text-align: center; }
-        .score-inner { display: inline-block; background: #23272e; padding: 8px 22px; border-radius: 8px; font-size: 1.25rem; font-weight: 700; color: #ffd700; box-shadow: 0 2px 8px rgba(0,0,0,0.13);}
-        .score-value { color: #fff; }
-        .fixture-toggle-btn {
-            display: block;
-            width: 100%;
-            background: #ffd700;
-            color: #181818;
-            font-weight: bold;
-            border: none;
-            border-radius: 12px 12px 0 0;
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 13px 0;
-            margin-bottom: 0;
-            transition: background 0.2s;
-        }
-        .fixture-toggle-btn[aria-expanded="true"] { background: #2ecc40; color: #fff; }
-        .fixture-toggle-btn[aria-expanded="false"] { background: #ffd700; color: #181818; }
-        .fixture-content-inner { padding: 18px 8px 8px 8px; }
-        .lineup-section { display: flex; justify-content: center; align-items: flex-start; min-height: 410px; }
-        .lineup-flex-wrap { display: flex; flex-direction: row; gap: 0; }
-        .lineup-big-img {
-            position: relative; background: #191e33; border: 3px solid #ffd700; border-radius: 24px 0 0 24px;
-            width: 370px; min-height: 410px; min-width: 210px; display: flex; flex-direction: column; align-items: center;
-            overflow: hidden; box-shadow: 0 4px 32px rgba(0,0,0,0.4);
-        }
-        .lineup-big-img img.lineup-big { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; position: absolute; left: 0; top: 0; z-index: 1; }
-        .lineup-label-on-img {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: #ffd700;
-            color: #191e33;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            padding: 7px 15px;
-            z-index: 2;
-            box-shadow: 0 2px 10px #0004;
-        }
-        .lineup-events-list {
-            background: rgba(20,20,30,0.88); border-radius: 0 24px 24px 0; padding: 18px 12px 12px 18px; box-sizing: border-box; z-index: 3;
-            min-height: 410px; display: flex; flex-direction: column; justify-content: flex-start; width: 220px;
-        }
-        .lineup-event-row { display: flex; gap: 12px; align-items: center; font-size: 1.09rem; color: #ffd700; border-bottom: 1px solid #444; padding: 4px 0; }
-        .lineup-event-minute {
-            min-width: 84px;
-            color: #fff;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            background: #1a237e;
-            border-radius: 8px;
-            padding: 3px 8px;
-            font-size: 1em;
-        }
-        .lineup-event-minute.lineup-label { background: #ffd700; color: #191e33; }
-        .lineup-event-minute.event-label { background: #00c3ff; color: #191e33; }
-        .lineup-event-action { min-width: 58px; color: #63e6be; display: flex; align-items: center; gap: 4px; }
-        .lineup-event-player { color: #fff; flex: 1; }
-        .icon-arrow-up { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 16px solid #2ecc40; display: inline-block; margin-right: 2px;}
-        .icon-arrow-down { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 16px solid #e74c3c; display: inline-block; margin-right: 2px;}
-        .player-indicator { display: inline-block; font-size: 0.72em; font-weight: 700; margin-left: 6px; padding: 1px 5px; border-radius: 7px; vertical-align: middle; background: #0a3773; color:#ffd700; }
-        .player-indicator.away { background: #6d081b; color: #ffd700; }
-        .match-venue { 
-            text-align: center; 
-            font-size: 1.04rem; 
-            font-weight: 600; 
-            color: #fff;
-            margin-bottom: 10px; 
-            background: #1e90ff;
-            padding: 6px 0; 
-            border-radius: 6px; 
-            box-shadow: 0 2px 8px #00c3ff44; 
-        }
-        .match-possibility-title { 
-            text-align: center; 
-            font-weight: 600; 
-            color: #ffd700; 
-            margin-bottom: 8px; 
-        }
-        .match-possibility-bar { display: flex; justify-content: center; gap: 16px; margin-top: 7px; }
-        .possibility { 
-            padding: 7px 16px; 
-            border-radius: 7px; 
-            font-size: 1.04rem; 
-            text-align: center; 
-            font-weight: 600; 
-            background: #23272e; 
-            color: #ffd700; 
-            border: 1px solid #ffd700;
-        }
-        .possibility.green { background: #2ecc40 !important; color: #fff !important; border: none;}
-        .possibility.yellow { background: #ffd700 !important; color: #222 !important; border: none;}
-        .possibility.red { background: #e74c3c !important; color: #fff !important; border: none;}
-        .possibility.home { background: #0a3773; color: #ffd700; }
-        .possibility.draw { background: #434343; color: #00c3ff; }
-        .possibility.away { background: #6d081b; color: #ffd700; }
-        .team-label {
-            font-weight: bold;
-            font-size: 1rem;
-            margin-bottom: 4px;
-            padding: 3px 15px;
-            border-radius: 10px;
-            background: #23272e;
-        }
-        .team:first-child .team-label { background: #0a3773; color: #ffd700; }
-        .team:last-child .team-label { background: #6d081b; color: #ffd700; }
-        @media (max-width: 800px) { .lineup-flex-wrap { flex-direction: column; } }
-        @media (max-width: 480px) {
-            .fixture-container, .player-stats-container, .header-block, .training-layout-wrapper { width: 96vw !important; min-width: 0 !important; }
-            .training-layout-wrapper { padding: 18px 6vw; }
-            .training-title { font-size: 1.15rem; }
-            .training-label { font-size: 0.97rem; }
-            .training-value { font-size: 0.98rem; }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Youthful Health FC — Team Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#0f1724;
+      --muted:#94a3b8;
+      --accent:#10b981;
+      --glass: rgba(255,255,255,0.03);
+      --glass-2: rgba(255,255,255,0.02);
+      --danger: #ef4444;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background:linear-gradient(180deg,var(--bg),#071020 120%);
+      color:#e6edf3;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Fullscreen Loader */
+    .loader-wrap{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg, rgba(2,6,23,0.9), rgba(6,10,18,0.95));
+      z-index:9999;
+      transition:opacity .45s ease,visibility .45s ease;
+    }
+    .loader-inner{
+      text-align:center;
+      backdrop-filter: blur(4px);
+      padding:22px;
+      border-radius:12px;
+      background:var(--glass);
+      box-shadow: 0 6px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+    .loader-avatar{
+      width:120px;
+      height:120px;
+      border-radius:50%;
+      object-fit:cover;
+      display:block;
+      margin:0 auto 12px auto;
+      border:4px solid rgba(255,255,255,0.06);
+      animation:openClose 800ms ease-in-out infinite alternate;
+    }
+    .loader-title{
+      font-weight:700;
+      letter-spacing:0.4px;
+      font-size:18px;
+      margin-bottom:6px;
+    }
+    .loader-sub{color:var(--muted); font-size:13px}
+
+    @keyframes openClose{
+      0%{ transform: scale(0.92); opacity:0.68; filter:blur(0.6px) }
+      50%{ transform: scale(1.06); opacity:1; filter:blur(0) }
+      100%{ transform: scale(0.96); opacity:0.78; filter:blur(0.4px) }
+    }
+
+    /* Main container */
+    .container{
+      max-width:1100px;
+      margin:36px auto;
+      padding:20px;
+    }
+    .team-card{
+      display:flex;
+      gap:22px;
+      background:linear-gradient(180deg,var(--card), rgba(255,255,255,0.01));
+      border-radius:14px;
+      padding:18px;
+      align-items:center;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .team-image{
+      width:160px;
+      height:160px;
+      border-radius:12px;
+      overflow:hidden;
+      flex:0 0 160px;
+      border:3px solid rgba(255,255,255,0.03);
+    }
+    .team-image img{ width:100%; height:100%; object-fit:cover; display:block }
+
+    .team-info{ flex:1; display:flex; flex-direction:column; gap:8px }
+    .team-name{ font-size:22px; font-weight:700 }
+    .team-meta{ color:var(--muted); font-size:14px }
+    .row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .person {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:8px 10px;
+      background:var(--glass-2);
+      border-radius:10px;
+      min-width:220px;
+    }
+    .person img{
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      object-fit:cover;
+      border:2px solid rgba(255,255,255,0.04);
+    }
+    .person .p-title{font-weight:600}
+    .info-grid{
+      display:flex;
+      gap:18px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+    .info-block{
+      background:transparent;
+      border-radius:10px;
+      padding:12px;
+      min-width:220px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    /* Buttons */
+    .actions{ display:flex; gap:12px; margin-top:14px; flex-wrap:wrap }
+    .btn{
+      background:linear-gradient(180deg,#0ea5a0,#059669);
+      color:white;
+      border:none;
+      padding:10px 14px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow:0 6px 18px rgba(4,120,87,0.14);
+      transition:transform .12s ease, opacity .12s;
+    }
+    .btn.secondary{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      color:var(--muted);
+      box-shadow:none;
+    }
+    .btn.small{
+      padding:6px 10px;
+      font-size:13px;
+      border-radius:8px;
+    }
+    .btn:active{ transform:translateY(1px) }
+    .btn[disabled]{ opacity:0.6; cursor:progress }
+
+    /* Overlay / Modal */
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.85));
+      align-items:center;
+      justify-content:center;
+      z-index:9998;
+    }
+    .overlay.show{ display:flex }
+    .modal{
+      width:92%;
+      max-width:720px;
+      max-height:86vh;
+      overflow:auto;
+      background: #071226;
+      border-radius:12px;
+      padding:16px;
+      border:1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 12px 40px rgba(2,6,23,0.7);
+      position:relative;
+    }
+    .modal .close{
+      position:absolute;
+      right:12px;
+      top:12px;
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      font-size:22px;
+      cursor:pointer;
+    }
+    .modal .modal-head{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .modal .controls{ display:flex; gap:8px; align-items:center }
+
+    .list { display:flex; flex-direction:column; gap:10px; margin-top:10px }
+    .player {
+      display:flex;
+      gap:12px;
+      align-items:center;
+      background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.02);
+    }
+    .player img{ width:46px; height:46px; border-radius:50%; object-fit:cover }
+    .player .meta{ color:var(--muted); font-size:13px }
+    .fixture{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+      padding:10px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.02);
+    }
+    .teammini{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      min-width:180px;
+    }
+    .teammini img{ width:56px; height:56px; border-radius:8px; object-fit:cover }
+    .odds{ margin-left:auto; text-align:right; color:var(--muted) }
+
+    .notice{
+      padding:18px;
+      border-radius:10px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      color:var(--muted);
+      text-align:center;
+    }
+
+    /* Compact variants (fixtures & results & terms) */
+    .fixture.compact{
+      flex-direction:column;
+      align-items:stretch;
+      gap:12px;
+    }
+    .fixture.compact .teammini{
+      min-width:unset;
+      justify-content:flex-start;
+    }
+    .fixture.compact .teammini img{ width:48px; height:48px; border-radius:8px }
+    .fixture.compact .odds{ margin-left:0; text-align:left; }
+
+    .fixture.compact .vs{
+      display:flex;
+      justify-content:center;
+      width:100%;
+      color:var(--muted);
+      font-weight:700;
+      margin:0;
+    }
+
+    .past-compact {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .past-compact .result-row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px;
+      border-radius:10px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+      border:1px solid rgba(255,255,255,0.02);
+    }
+    .past-compact .team{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .past-compact .team img{ width:44px; height:44px; border-radius:8px }
+
+    /* Modal loader */
+    .modal-loader{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      flex-direction:column;
+      color:var(--muted);
+    }
+    .dots {
+      display:flex;
+      gap:6px;
+      align-items:center;
+    }
+    .dot{
+      width:10px;
+      height:10px;
+      background:var(--accent);
+      border-radius:50%;
+      opacity:0.85;
+      transform:scale(0.9);
+      animation:dotPulse 900ms infinite ease-in-out;
+    }
+    .dot:nth-child(2){ animation-delay:120ms; background:#34d399 }
+    .dot:nth-child(3){ animation-delay:240ms; background:#60a5fa }
+    @keyframes dotPulse{
+      0%{ transform:scale(0.72); opacity:0.6 }
+      50%{ transform:scale(1.15); opacity:1 }
+      100%{ transform:scale(0.72); opacity:0.6 }
+    }
+
+    footer{ text-align:center; color:var(--muted); margin-top:22px; font-size:13px }
+
+    /* Responsive */
+    @media (max-width:720px){
+      .team-card{ flex-direction:column; align-items:flex-start }
+      .team-image{ width:100%; height:220px; flex:unset; border-radius:12px }
+      .person{ min-width:unset }
+      .teammini img{ width:44px; height:44px }
+      .modal{ max-width:96%; padding:12px }
+    }
+  </style>
 </head>
 <body>
-    <div id="loading-overlay">
-        <img src="AddText_07-18-06.03.58.png" alt="Loading..." />
-        <span id="typing-text"></span>
-    </div>
-    <!-- HEADER IMAGE AND SPORT CHANNEL -->
-    <div class="header-block" id="header-block" style="display:none;">
-        <img src="AddText_07-18-06.02.36.png" alt="Header" class="header-img" id="header-img"/>
-        <div class="sport-channel">SPORT CHANNEL</div>
-    </div>
-    <!-- MODERN TRAINING INFO LAYOUT -->
-    <div class="training-layout-wrapper" id="training-layout-wrapper">
-        <div class="training-title">Training Information</div>
-        <div class="training-row">
-            <span class="training-label">
-                <img class="training-icon" src="https://cdn-icons-png.flaticon.com/512/61/61088.png" alt="Days"> Days:
-            </span>
-            <span class="training-value" id="training-days"></span>
-        </div>
-        <div class="training-row">
-            <span class="training-label">
-                <img class="training-icon" src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Venue"> Venue:
-            </span>
-            <span class="training-value" id="training-venue"></span>
-        </div>
-        <div class="training-row">
-            <span class="training-label">
-                <img class="training-icon" src="https://cdn-icons-png.flaticon.com/512/726/726476.png" alt="Time"> Time:
-            </span>
-            <span class="training-value" id="training-time"></span>
-        </div>
-    </div>
-    <!-- TEAM STAFF & CAPTAINS SECTION -->
-    <div class="player-stats-container" id="team-staff-block" style="display:none;">
-        <div class="player-stats-title">Team Officials & Captains</div>
-        <div id="team-staff-table-root"></div>
-    </div>
-    <!-- PLAYER STATS SECTION -->
-    <div class="player-stats-container" id="player-stats-block" style="display:none;">
-        <button class="toggle-section-btn" id="toggle-player-stats-btn" aria-expanded="true" onclick="togglePlayerStats()">Hide Player Stats</button>
-        <div class="player-stats-title">Player Stats</div>
-        <div id="player-stats-table-root"></div>
-    </div>
-    <!-- FIXTURES SECTION -->
-    <div class="fixture-container" id="fixture-content" style="display:none;">
-        <div id="fixtures-root"></div>
-        <div class="empty-space"></div>
-    </div>
-    <script>
-    const loadingText = "UEC/QIC 16 Abasi Orok";
-    const typingDelay = 90;
 
-    // TRAINING INFO DATA (EDITABLE)
-    const trainingInfo = {
-        days: "Saturdays and Sundays",
-        venue: "Government Technical College. Mayne Avenue, Calabar South",
-        time: "Saturdays by 07:00 - 11:00<br>Sundays by 03:00 - 18:00"
+  <!-- Fullscreen initial loader (6 seconds) -->
+  <div id="loader" class="loader-wrap" role="status" aria-label="Loading content">
+    <div class="loader-inner" aria-hidden="false">
+      <!-- Replace ./assets/your-image.jpg with your actual image file path; fallback will be used if missing -->
+      <img id="loaderAvatar" class="loader-avatar" src="./assets/your-image.jpg" alt="Loader image" onerror="this.src='https://i.pravatar.cc/200?img=47'">
+      <div class="loader-title">Youthful Health FC</div>
+      <div class="loader-sub">Preparing the squad... this will take about 6 seconds</div>
+    </div>
+  </div>
+
+  <main class="container" id="app" aria-live="polite" style="opacity:0; transform:translateY(8px); transition:all .5s ease;">
+    <div class="team-card" role="region" aria-labelledby="teamTitle">
+      <div class="team-image" aria-hidden="false">
+        <img id="teamImg" src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=6f3f2f60c361b9ef9e92a5d3d60a5a9b" alt="Team image">
+      </div>
+      <div class="team-info">
+        <div id="teamTitle" class="team-name">Youthful Health FC</div>
+        <div class="team-meta">Founded: <span id="founded">2018</span></div>
+
+        <div class="info-grid">
+          <div class="person" title="Head Coach">
+            <img id="headCoachImg" src="https://i.pravatar.cc/100?img=12" alt="Head coach">
+            <div>
+              <div class="p-title">Head Coach</div>
+              <div class="p-sub" id="headCoach">Marcus Osei</div>
+            </div>
+          </div>
+
+          <div class="person" title="Assistant Coach">
+            <img id="asstCoachImg" src="https://i.pravatar.cc/100?img=13" alt="Assistant coach">
+            <div>
+              <div class="p-title">Assistant Coach</div>
+              <div class="p-sub" id="asstCoach">Lydia Mensah</div>
+            </div>
+          </div>
+
+          <div class="person" title="Captain">
+            <img id="captainImg" src="https://i.pravatar.cc/100?img=14" alt="Captain">
+            <div>
+              <div class="p-title">Captain</div>
+              <div class="p-sub" id="captain">Samuel Boateng</div>
+            </div>
+          </div>
+
+          <div class="person" title="Assistant Captain">
+            <img id="asstCapImg" src="https://i.pravatar.cc/100?img=15" alt="Assistant Captain">
+            <div>
+              <div class="p-title">Assistant Captain</div>
+              <div class="p-sub" id="asstCaptain">Irene Adom</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:8px">
+          <div class="info-block">
+            <div style="font-weight:700">Stadium</div>
+            <div id="stadium" class="team-meta">Youthful Arena — Eastside Park</div>
+          </div>
+
+          <div class="info-block">
+            <div style="font-weight:700">Training</div>
+            <div id="training" class="team-meta">Tue, Thu & Sat — 18:00 to 20:00</div>
+          </div>
+
+        </div>
+
+        <div class="actions">
+          <button id="btnPlayers" class="btn">Show Players</button>
+          <button id="btnFixture" class="btn secondary">Next Fixture</button>
+          <button id="btnResults" class="btn secondary">Past Results</button>
+          <button id="btnTerms" class="btn secondary">Terms &amp; Conditions</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Overlay / Modal -->
+  <div id="overlay" class="overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="close" id="modalClose" aria-label="Close">&times;</button>
+      <div id="modalContent">
+        <!-- Content populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sample data
+    const TEAM = {
+      name: "Youthful Health FC",
+      founded: 2018,
+      image: "https://images.unsplash.com/photo-1521412644187-c49fa049e84d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=6f3f2f60c361b9ef9e92a5d3d60a5a9b",
+      stadium: { name: "Youthful Arena", location: "Eastside Park" },
+      training: "Tue, Thu & Sat — 18:00 to 20:00",
+      headCoach: { name: "Marcus Osei", img: "https://i.pravatar.cc/100?img=12" },
+      assistantCoach: { name: "Lydia Mensah", img: "https://i.pravatar.cc/100?img=13" },
+      captain: { name: "Samuel Boateng", img: "https://i.pravatar.cc/100?img=14" },
+      assistantCaptain: { name: "Irene Adom", img: "https://i.pravatar.cc/100?img=15" },
     };
 
-    // TEAM STAFF & CAPTAINS DATA
-    const teamStaff = [
-        { role: "Head Coach", name: "Akanimo John" },
-        { role: "Assistant Coach", name: "Aniekan Kiddy" },
-        { role: "Team Captain", name: "Kizz" },
-        { role: "Assistant Captain", name: "Ronaldo" }
+    const PLAYERS = [
+      { name:"Kwame Appiah", number:1, position:"GK", img:"https://i.pravatar.cc/100?img=21" },
+      { name:"Daniel K.", number:4, position:"DF", img:"https://i.pravatar.cc/100?img=22" },
+      { name:"Emmanuel P.", number:7, position:"MF", img:"https://i.pravatar.cc/100?img=23" },
+      { name:"Joseph T.", number:9, position:"FW", img:"https://i.pravatar.cc/100?img=24" },
+      { name:"Rita S.", number:11, position:"MF", img:"https://i.pravatar.cc/100?img=25" },
+      { name:"Michael N.", number:6, position:"DF", img:"https://i.pravatar.cc/100?img=26" }
     ];
 
-    function renderTeamStaff(staffArr) {
-        return `
-        <div style="overflow-x:auto;">
-            <table class="player-stats-table">
-                <thead>
-                    <tr>
-                        <th>Role</th>
-                        <th>Name</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${staffArr.map(row => `
-                        <tr>
-                            <td class="player-position">${row.role}</td>
-                            <td class="player-name">${row.name}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-        `;
-    }
-    function typeLoadingText(text, el, cb) {
-        let idx = 0;
-        function type() {
-            el.textContent = text.slice(0, idx + 1);
-            idx++;
-            if (idx < text.length) setTimeout(type, typingDelay);
-            else if (cb) cb();
-        }
-        type();
-    }
-    const playerStatsArr = [
-        { number: 1, name: "Joseph", position: "Goalkeeper", goals: 0, assists: 0 },
-        { number: 2, name: "Christian Sunday", position: "Right Back", goals: 1, assists: 1 },
-        { number: 3, name: "Success", position: "Left Back", goals: 0, assists: 0 },
-        { number: 4, name: "Victory Wisdom", position: "Center Back", goals: 0, assists: 0 },
-        { number: 5, name: "Victoriano", position: "Center Back", goals: 0, assists: 0 },
-        { number: 6, name: "Luck", position: "Central Midfield", goals: 0, assists: 0 },
-        { number: 7, name: "Ronaldo", position: "Right Winger", goals: 2, assists: 1 },
-        { number: 8, name: "NN", position: "Central Midfield", goals: 0, assists: 0 },
-        { number: 9, name: "Kizz", position: "Striker", goals: 3, assists: 0 },
-        { number: 10, name: "NN", position: "Central Forward", goals: 0, assists: 0 },
-        { number: 11, name: "NN", position: "Left winger", goals: 0, assists: 0 }
-    ];
-    const fixtures = [
+    // Next fixture (set to null to show "no fixture" notice)
+    const NEXT_FIXTURE = {
+      home: { name: "Youthful Health FC", img: TEAM.image },
+      away: { name: "Riverbank United", img: "https://images.unsplash.com/photo-1520975913036-3c8af5b6ec9f?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=00fdaa9e0b06d3b6b65d69a60a27b2ea" },
+      odds: { home: 1.95, draw: 3.4, away: 3.6 }, // decimal odds 1X2
+      venue: TEAM.stadium.name + " — " + TEAM.stadium.location,
+      date: "2025-11-02",
+      time: "16:00"
+    };
+
+    // Past results
+    const PAST_RESULTS = [
       {
-        title: "Youth Friendly Match",
-        time: "Friday, June 6, 2025 • 08:00 AM",
-        homeName: "Divine God's Mercy Academy",
-        homeImg: "AddText_07-18-06.04.29.png",
-        awayName: "The Rock FC",
-        awayImg: "AddText_07-18-06.02.36.png",
-        stats: [
-            ["Corner Kicks",4,6],
-            ["Shots",10,14],
-            ["Dangerous Attack",9,19],
-            ["Ball Possession",70,30],
-            ["Yellow Cards",3,2],
-            ["Red Cards",1,0]
-        ],
-        halfTimeScore: "2-2",
-        fullTimeScore: "4-6",
-        venue: "Piaco Comprehensive College",
-        possibility: [
-            ["home", "Home 60%"],
-            ["draw", "Draw 30%"],
-            ["away", "Away 10%"]
-        ],
-        events: [
-            ["goal","away",15,"Paul"],
-            ["goal","home",26,"Digma"],
-            ["goal","away",40,"Christian"],
-            ["goal","home","45+6","Digma"],
-            ["ht","","48","HT 2-2"],
-            ["goal","home",52,"Digma"],
-            ["goal","away",60,"Ronaldo"],
-            ["goal","home",65,"Digma"],
-            ["sub_out","away",70,"Joseph"],
-            ["sub_in","away",70,"captain"],
-            ["goal","away",76,"Paul"],
-            ["goal","away",85,"Paul"],
-            ["goal","away","90+2","Ronaldo"],
-            ["ft","","99","FT 4-6"]
-        ],
-        lineupImg: "AddText_06-07-12.31.08_copy_210x410_1.png"
-      },
-      {
-        title: "Youth Friendly Match",
-        time: "Sunday, July 20, 2025 • 02:00 PM",
-        homeName: "The Rock FC",
-        homeImg: "AddText_07-18-06.02.36.png",
-        awayName: "Divine God's Mercy Academy",
-        awayImg: "AddText_07-18-06.04.29.png",
-        stats: [
-          ["Corner Kicks", 4, 6],
-          ["Shots", 20, 9],
-          ["Dangerous Attack", 10, 90],
-          ["Ball Possession", 20, 80],
-          ["Yellow Cards", 0, 0],
-          ["Red Cards", 0, 0]
-        ],
-        halfTimeScore: "3-1",
-        fullTimeScore: "4-7",
-        venue: "Piaco Comprehensive College",
-        possibility: [
-          ["home", "Home 90%"],
-          ["draw", "Draw 5%"],
-          ["away", "Away 5%"]
-        ],
-        events: [
-          ["goal", "home",20, ""],
-          ["goal", "home",30, ""],
-          ["goal", "home",40, ""],
-          ["goal", "away",46, ""],
-          ["ht","","49","HT 3-1"],
-          ["sub_out","home",45,"ID"],
-          ["sub_in","home",45,"Victoriano"],
-          ["goal", "away",50, ""],
-          ["goal", "away",55, ""],
-          ["goal", "away",70, ""],
-          ["goal", "away",79, ""],
-          ["goal", "home",86, ""],
-          ["goal", "away",92, ""],
-          ["goal", "away",99, ""],
-          ["ft", "", , "FT 4-7"]
-        ],
-        lineupImg: "AddText_07-20-02.29.11.png"
+        home: { name: "Youthful Health FC", img: TEAM.image },
+        away: { name: "Seaside Rovers", img: "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=9d7c2b3b2c365d2f3b95f3e5d1f5bb7f" },
+        ht: "1-0",
+        ft: "2-1",
+        date: "2025-08-21"
       }
     ];
-    function formatMinute(min) {
-        if (typeof min === 'string' && (min.startsWith('HT') || min.startsWith('FT'))) return min;
-        if (typeof min === 'number') {
-            return `${min}'`;
-        }
-        if (typeof min === 'string' && min.match(/^\d+\+\d+$/)) {
-            return `${min}'`;
-        }
-        if (typeof min === 'string' && /^\d+$/.test(min)) {
-            return `${min}'`;
-        }
-        return min;
-    }
-    function renderPlayerStats(stats) {
-        return `
-        <div style="overflow-x:auto;">
-        <table class="player-stats-table">
-            <thead>
-                <tr>
-                    <th>Number</th>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Goals</th>
-                    <th>Assists</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${stats.map(row => `
-                    <tr>
-                        <td class="player-number">${row.number}</td>
-                        <td class="player-name">${row.name}</td>
-                        <td class="player-position">${row.position}</td>
-                        <td class="player-goals">${row.goals}</td>
-                        <td class="player-assists">${row.assists}</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-        </div>
-        `;
-    }
-    function renderFixture(fixture, idx, expanded=true) {
-        const fixtureId = `fixture${idx+1}`;
-        return `
-        <div class="fixture-block" id="block-${fixtureId}">
-            <button class="fixture-toggle-btn" aria-expanded="${expanded}" onclick="toggleFixture('${fixtureId}')">
-                ${expanded ? "Hide" : "Show"} Fixture: ${fixture.title}
-            </button>
-            <div id="${fixtureId}-content" class="fixture-content-inner" style="${expanded ? "" : "display:none;"}">
-                <div class="fixture-title">${fixture.title}</div>
-                <div class="fixture-time">${fixture.time}</div>
-                <div class="teams-row">
-                    <div class="team">
-                        <div class="team-label">Home</div>
-                        <img src="${fixture.homeImg}" alt="Team A">
-                        <div class="team-name">${fixture.homeName}</div>
-                    </div>
-                    <div class="vs">VS</div>
-                    <div class="team">
-                        <div class="team-label">Away</div>
-                        <img src="${fixture.awayImg}" alt="Team B">
-                        <div class="team-name">${fixture.awayName}</div>
-                    </div>
-                </div>
-                <div class="toggle-buttons" id="${fixtureId}">
-                    <button class="toggle-btn active" onclick="showStats('${fixtureId}')">Match Stats</button>
-                    <button class="toggle-btn" onclick="showLineup('${fixtureId}')">Team Lineup</button>
-                </div>
-                <div class="stats-bar" id="${fixtureId}-stats">
-                ${
-                    fixture.stats.map(row => {
-                        const [label, home, away] = row;
-                        const total = home + away > 0 ? home + away : 1;
-                        const homePercent = Math.round((home/total)*100);
-                        const awayPercent = 100 - homePercent;
-                        return `
-                        <div class="stat-row">
-                            <div class="stat-value" style="color:#ffd700;">${home}</div>
-                            <div class="stat-bar-outer">
-                                <div class="stat-bar-inner">
-                                    <div class="stat-bar-home" style="width:${homePercent}%;"></div>
-                                    <div class="stat-bar-away" style="width:${awayPercent}%;"></div>
-                                </div>
-                            </div>
-                            <div class="stat-value" style="color:#ffd700;">${away}</div>
-                            <div class="stat-label">${label}</div>
-                        </div>
-                        `;
-                    }).join('')
-                }
-                </div>
-                <div class="lineup-section" id="${fixtureId}-lineup" style="display:none;">
-                    <div class="lineup-flex-wrap">
-                        <div class="lineup-big-img">
-                            <img src="${fixture.lineupImg}" alt="Lineup Big" class="lineup-big" />
-                            <div class="lineup-label-on-img">Lineup</div>
-                        </div>
-                        <div class="lineup-events-list">
-                            ${
-                              fixture.events.map(ev => {
-                                const [type, team, minute, arg] = ev;
-                                if(type === "ht" || type === "ft") {
-                                    return `<div class="lineup-event-row" style="justify-content:center; color:#ffd700; font-weight:bold;">
-                                                <span class="lineup-event-minute" style="background:#ffd700; color:#191e33;">${type === "ht" ? "Half Time" : "Full Time"}</span>
-                                                <span style="margin-left:10px;">${arg}</span>
-                                            </div>`;
-                                }
-                                let action = "";
-                                let icon = "";
-                                if(type === "goal") {
-                                    action = "Goal";
-                                }
-                                else if(type === "sub_in") {
-                                    action = "Sub In";
-                                    icon = `<span class="icon-arrow-up"></span>`;
-                                }
-                                else if(type === "sub_out") {
-                                    action = "Sub Out";
-                                    icon = `<span class="icon-arrow-down"></span>`;
-                                }
-                                else {
-                                    action = type.charAt(0).toUpperCase() + type.slice(1);
-                                }
-                                let indicator = '';
-                                if (team === 'home') {
-                                    indicator = `<span class="player-indicator">H</span>`;
-                                } else if (team === 'away') {
-                                    indicator = `<span class="player-indicator away">A</span>`;
-                                }
-                                return `<div class="lineup-event-row">
-                                    <span class="lineup-event-minute">${formatMinute(minute)}</span>
-                                    <span class="lineup-event-action">${action} ${icon}</span>
-                                    <span class="lineup-event-player">${arg || ""}${indicator}</span>
-                                </div>`;
-                              }).join("")
-                            }
-                        </div>
-                    </div>
-                </div>
-                <div class="score-section">
-                    <div class="score-inner">
-                        Half Time Score: <span class="score-value">${fixture.halfTimeScore}</span>
-                    </div>
-                    <br>
-                    <div class="score-inner">
-                        Full Time Score: <span class="score-value">${fixture.fullTimeScore}</span>
-                    </div>
-                </div>
-                <div class="match-info">
-                    <div class="match-venue">Venue: ${fixture.venue}</div>
-                    <div class="match-possibility-title">Match Possibility</div>
-                    <div class="match-possibility-bar" id="${fixtureId}-possibility-bar">
-                        ${fixture.possibility.map(p=>`<div class="possibility ${p[0]}">${p[1]}</div>`).join("")}
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
-    }
-    function colorPossibilities() {
-        document.querySelectorAll('[id$="-possibility-bar"]').forEach(bar => {
-            const items = Array.from(bar.children);
-            const percentages = items.map(item => {
-                const match = item.textContent.match(/(\d+)%/);
-                return match ? parseInt(match[1]) : 0;
-            });
-            const sorted = [...percentages].sort((a, b) => b - a);
-            items.forEach((item, idx) => {
-                item.classList.remove('green', 'yellow', 'red');
-                if (percentages[idx] === sorted[0]) {
-                    item.classList.add('green');
-                } else if (percentages[idx] === sorted[1]) {
-                    item.classList.add('yellow');
-                } else {
-                    item.classList.add('red');
-                }
-            });
-        });
-    }
-    function showStats(fixtureId) {
-        document.querySelector(`#${fixtureId}-stats`).style.display = "";
-        document.querySelector(`#${fixtureId}-lineup`).style.display = "none";
-        let block = document.getElementById(fixtureId);
-        block.querySelector('.toggle-btn:nth-child(1)').classList.add("active");
-        block.querySelector('.toggle-btn:nth-child(2)').classList.remove("active");
-    }
-    function showLineup(fixtureId) {
-        document.querySelector(`#${fixtureId}-stats`).style.display = "none";
-        document.querySelector(`#${fixtureId}-lineup`).style.display = "";
-        let block = document.getElementById(fixtureId);
-        block.querySelector('.toggle-btn:nth-child(1)').classList.remove("active");
-        block.querySelector('.toggle-btn:nth-child(2)').classList.add("active");
-    }
-    function togglePlayerStats() {
-        const table = document.getElementById('player-stats-table-root');
-        const btn = document.getElementById('toggle-player-stats-btn');
-        if(table.style.display === 'none') {
-            table.style.display = '';
-            btn.textContent = "Hide Player Stats";
-            btn.setAttribute('aria-expanded', 'true');
-        } else {
-            table.style.display = 'none';
-            btn.textContent = "Show Player Stats";
-            btn.setAttribute('aria-expanded', 'false');
-        }
-    }
-    function toggleFixture(fixtureId) {
-        const block = document.getElementById(`block-${fixtureId}`);
-        const btn = block.querySelector('.fixture-toggle-btn');
-        const content = document.getElementById(`${fixtureId}-content`);
-        const expanded = btn.getAttribute('aria-expanded') === 'true';
-        if(expanded) {
-            content.style.display = "none";
-            btn.textContent = btn.textContent.replace("Hide", "Show");
-            btn.setAttribute('aria-expanded', 'false');
-        } else {
-            content.style.display = "";
-            btn.textContent = btn.textContent.replace("Show", "Hide");
-            btn.setAttribute('aria-expanded', 'true');
-        }
-    }
-    window.addEventListener('DOMContentLoaded', function() {
-        typeLoadingText(loadingText, document.getElementById('typing-text'), function() {
-            setTimeout(function() {
-                document.getElementById('header-block').style.display = '';
-                // Show updated training info layout
-                document.getElementById('training-days').innerHTML = trainingInfo.days;
-                document.getElementById('training-venue').innerHTML = trainingInfo.venue;
-                document.getElementById('training-time').innerHTML = trainingInfo.time;
-                // Render team staff and show
-                document.getElementById('team-staff-table-root').innerHTML = renderTeamStaff(teamStaff);
-                document.getElementById('team-staff-block').style.display = '';
-                // Render player stats and show
-                document.getElementById('player-stats-table-root').innerHTML = renderPlayerStats(playerStatsArr);
-                document.getElementById('player-stats-block').style.display = '';
-                // Render fixtures
-                let html = "";
-                for(let i=0; i<fixtures.length; ++i) {
-                    html += renderFixture(fixtures[i], i, i===0);
-                }
-                document.getElementById('fixtures-root').innerHTML = html;
-                colorPossibilities();
-                document.getElementById('loading-overlay').style.display = 'none';
-                document.getElementById('fixture-content').style.display = '';
-            }, 400);
-        });
+
+    // DOM wiring
+    document.addEventListener("DOMContentLoaded", () => {
+      // populate team info
+      document.getElementById("teamImg").src = TEAM.image;
+      document.getElementById("founded").textContent = TEAM.founded;
+      document.getElementById("stadium").textContent = TEAM.stadium.name + " — " + TEAM.stadium.location;
+      document.getElementById("training").textContent = TEAM.training;
+      document.getElementById("headCoach").textContent = TEAM.headCoach.name;
+      document.getElementById("headCoachImg").src = TEAM.headCoach.img;
+      document.getElementById("asstCoach").textContent = TEAM.assistantCoach.name;
+      document.getElementById("asstCoachImg").src = TEAM.assistantCoach.img;
+      document.getElementById("captain").textContent = TEAM.captain.name;
+      document.getElementById("captainImg").src = TEAM.captain.img;
+      document.getElementById("asstCaptain").textContent = TEAM.assistantCaptain.name;
+      document.getElementById("asstCapImg").src = TEAM.assistantCaptain.img;
+
+      // buttons
+      const btnPlayers = document.getElementById("btnPlayers");
+      const btnFixture = document.getElementById("btnFixture");
+      const btnResults = document.getElementById("btnResults");
+      const btnTerms = document.getElementById("btnTerms");
+      btnPlayers.addEventListener("click", () => openWithLoading(showPlayers));
+      btnFixture.addEventListener("click", () => openWithLoading(showFixtureCompact));
+      btnResults.addEventListener("click", () => openWithLoading(showResultsCompact));
+      btnTerms.addEventListener("click", () => openWithLoading(showTermsCompact));
+
+      // modal close
+      document.getElementById("modalClose").addEventListener("click", closeModal);
+      document.getElementById("overlay").addEventListener("click", (e) => {
+        if(e.target === document.getElementById("overlay")) closeModal();
+      });
+
+      // initial fullscreen loader (6s)
+      const loader = document.getElementById("loader");
+      const app = document.getElementById("app");
+      setTimeout(() => {
+        loader.style.opacity = 0;
+        loader.style.visibility = "hidden";
+        loader.setAttribute("aria-hidden", "true");
+        app.style.opacity = 1;
+        app.style.transform = "translateY(0)";
+      }, 6000);
     });
-    </script>
+
+    // Modal helpers
+    function openModal(html){
+      const overlay = document.getElementById("overlay");
+      const content = document.getElementById("modalContent");
+      content.innerHTML = html;
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+      document.getElementById("modalClose").focus();
+    }
+    function closeModal(){
+      const overlay = document.getElementById("overlay");
+      overlay.classList.remove("show");
+      overlay.setAttribute("aria-hidden", "true");
+      // re-enable any disabled buttons
+      reenableButtons();
+    }
+
+    // Show a loading UI inside the modal and then run the renderer after a delay (6s).
+    // renderer: function that returns HTML string for final content.
+    // while loading, action buttons are disabled.
+    function openWithLoading(renderer){
+      disableButtons();
+      const loadingHtml = `
+        <div class="modal-head"><h2 id="modalTitle">Loading…</h2><div class="controls"><button class="btn small secondary" onclick="closeModal()">Close</button></div></div>
+        <div class="modal-loader">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <img src="./assets/your-image.jpg" alt="" onerror="this.src='https://i.pravatar.cc/80?img=47'" style="width:56px;height:56px;border-radius:8px;object-fit:cover;opacity:0.95;border:2px solid rgba(255,255,255,0.04)">
+            <div style="text-align:left">
+              <div style="font-weight:700">Fetching data</div>
+              <div style="color:var(--muted);font-size:13px">Please wait a moment…</div>
+            </div>
+          </div>
+          <div class="dots" aria-hidden="true" style="margin-top:12px">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+        </div>
+      `;
+      openModal(loadingHtml);
+
+      // Use 6000ms to match the requested load time
+      const simulatedDelay = 6000;
+      setTimeout(() => {
+        try {
+          const html = renderer();
+          document.getElementById("modalContent").innerHTML = html;
+        } finally {
+          reenableButtons();
+        }
+      }, simulatedDelay);
+    }
+
+    function disableButtons(){
+      document.querySelectorAll('.actions .btn').forEach(b => {
+        b.setAttribute('disabled','true');
+      });
+    }
+    function reenableButtons(){
+      document.querySelectorAll('.actions .btn').forEach(b => {
+        b.removeAttribute('disabled');
+      });
+    }
+
+    // escaping helper
+    function escapeHtml(str){
+      if(!str && str !== 0) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Render players (compact listing)
+    function showPlayers(){
+      if(!PLAYERS || PLAYERS.length === 0){
+        return `<div class="modal-head"><h2 id="modalTitle">Players</h2></div><div class="notice">No players found for this team.</div>`;
+      }
+      let html = `<div class="modal-head"><h2 id="modalTitle">Players — ${escapeHtml(TEAM.name)}</h2><div class="controls"><button class="btn small secondary" onclick="closeModal()">Close</button></div></div><div class="list">`;
+      PLAYERS.forEach(p=>{
+        html += `
+          <div class="player" role="article">
+            <img src="${p.img}" alt="${escapeHtml(p.name)}">
+            <div>
+              <div style="font-weight:700">${escapeHtml(p.name)} <span style="color:var(--muted); font-weight:600">#${p.number}</span></div>
+              <div class="meta">${escapeHtml(p.position)}</div>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      return html;
+    }
+
+    // Render next fixture in compact view only
+    function showFixtureCompact(){
+      if(!NEXT_FIXTURE){
+        return `<div class="modal-head"><h2 id="modalTitle">Next Fixture</h2></div><div class="notice">There is no upcoming fixture scheduled.</div>`;
+      }
+      const f = NEXT_FIXTURE;
+      const {home, draw, away} = f.odds;
+      const invHome = 1/home, invDraw = 1/draw, invAway = 1/away;
+      const total = invHome + invDraw + invAway;
+      const ph = (invHome/total*100).toFixed(1);
+      const pd = (invDraw/total*100).toFixed(1);
+      const pa = (invAway/total*100).toFixed(1);
+      const probs = [{k:'Home',v:ph},{k:'Draw',v:pd},{k:'Away',v:pa}];
+      probs.sort((a,b)=>parseFloat(b.v)-parseFloat(a.v));
+      const fav = probs[0];
+
+      const html = `
+        <div class="modal-head">
+          <h2 id="modalTitle">Next Fixture</h2>
+          <div class="controls"><button class="btn small secondary" onclick="closeModal()">Close</button></div>
+        </div>
+
+        <div class="fixture compact" role="article" aria-label="Next fixture compact">
+          <div class="teammini">
+            <img src="${f.home.img}" alt="${escapeHtml(f.home.name)}">
+            <div>
+              <div style="font-weight:700">${escapeHtml(f.home.name)}</div>
+              <div class="team-meta">${escapeHtml(f.date)} • ${escapeHtml(f.time)}</div>
+            </div>
+          </div>
+
+          <div class="vs" aria-hidden="true">VS</div>
+
+          <div class="teammini">
+            <img src="${f.away.img}" alt="${escapeHtml(f.away.name)}">
+            <div>
+              <div style="font-weight:700">${escapeHtml(f.away.name)}</div>
+              <div class="team-meta">${escapeHtml(f.venue)}</div>
+            </div>
+          </div>
+
+          <div class="odds" aria-hidden="true">
+            <div style="font-weight:700">Odds (1X2)</div>
+            <div class="team-meta">Home: ${f.odds.home}  •  Draw: ${f.odds.draw}  •  Away: ${f.odds.away}</div>
+            <div style="margin-top:8px; font-size:13px">Implied: Home ${ph}% • Draw ${pd}% • Away ${pa}%</div>
+            <div style="margin-top:8px; color:${fav.k==='Home' ? 'var(--accent)' : 'var(--muted)'}; font-weight:700">
+              Most likely: ${escapeHtml(fav.k)} (${fav.v}%)
+            </div>
+          </div>
+        </div>
+      `;
+      return html;
+    }
+
+    // Render past results in compact view only
+    function showResultsCompact(){
+      if(!PAST_RESULTS || PAST_RESULTS.length === 0){
+        return `<div class="modal-head"><h2 id="modalTitle">Past Results</h2></div><div class="notice">No past results available.</div>`;
+      }
+      let rows = '';
+      PAST_RESULTS.forEach(r => {
+        rows += `
+          <div class="result-row" role="article">
+            <div class="team">
+              <img src="${r.home.img}" alt="${escapeHtml(r.home.name)}">
+              <div>
+                <div style="font-weight:700">${escapeHtml(r.home.name)}</div>
+                <div class="team-meta">HT ${escapeHtml(r.ht)} • FT ${escapeHtml(r.ft)}</div>
+              </div>
+            </div>
+
+            <div style="font-weight:800; color:var(--muted)">vs</div>
+
+            <div class="team">
+              <img src="${r.away.img}" alt="${escapeHtml(r.away.name)}">
+              <div>
+                <div style="font-weight:700">${escapeHtml(r.away.name)}</div>
+                <div class="team-meta">${escapeHtml(r.date)}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      const html = `
+        <div class="modal-head">
+          <h2 id="modalTitle">Past Results</h2>
+          <div class="controls"><button class="btn small secondary" onclick="closeModal()">Close</button></div>
+        </div>
+        <div class="past-compact" style="margin-top:10px">
+          ${rows}
+        </div>
+      `;
+      return html;
+    }
+
+    // Terms & Conditions (compact view)
+    function showTermsCompact(){
+      // This returns static terms content per your request. Edit text here if you'd like different wording.
+      const html = `
+        <div class="modal-head">
+          <h2 id="modalTitle">Terms &amp; Conditions</h2>
+          <div class="controls"><button class="btn small secondary" onclick="closeModal()">Close</button></div>
+        </div>
+
+        <div style="margin-top:10px; line-height:1.5; color:var(--muted); font-size:14px">
+          <p style="color:var(--muted)"><strong>Overview</strong></p>
+          <p>All players and team members of Youthful Health FC are required to abide by the rules and regulations below. These rules exist to maintain respect, safety, fairness and the good reputation of the club.</p>
+
+          <p style="color:var(--muted)"><strong>Respect &amp; Conduct</strong></p>
+          <ul>
+            <li>Respect the Head Coach, Assistant Coach, Team Captain and Assistant Captain at all times. Follow their instructions during training and matches.</li>
+            <li>No foul language, abusive, discriminatory or aggressive behaviour on the pitch, in changing rooms, or immediately after training or matches. This includes verbal or physical aggression.</li>
+            <li>Maintain professional behaviour on social media when representing the club; avoid posting content that harms the club's reputation.</li>
+          </ul>
+
+          <p style="color:var(--muted)"><strong>Attendance &amp; Punctuality</strong></p>
+          <ul>
+            <li>Arrive at training on time. Repeated lateness will lead to disciplinary action.</li>
+            <li>Bring the required token of <strong>200 Naira</strong> to each training session unless otherwise advised by the coaching staff.</li>
+            <li>If you cannot attend a session, notify the coach or captain in advance with a valid reason.</li>
+          </ul>
+
+          <p style="color:var(--muted)"><strong>Discipline &amp; Penalties</strong></p>
+          <ul>
+            <li>During training, if a player receives a training yellow card (for misconduct determined by staff), the penalty is <strong>200 Naira</strong>.</li>
+            <li>A training red card (serious misconduct) results in a penalty of <strong>500 Naira</strong>, and may include further disciplinary measures (suspension, match ban) depending on severity.</li>
+            <li>Repeated offences escalate penalties. Suspensions or removal from the squad may apply for severe or repeated breaches.</li>
+          </ul>
+
+          <p style="color:var(--muted)"><strong>Health &amp; Safety</strong></p>
+          <ul>
+            <li>Inform coaching staff of any injury or medical condition before training starts. Do not train while carrying an untreated serious injury.</li>
+            <li>No alcohol or illicit drugs before or during training and matches. Smoking is discouraged during club activities and may lead to disciplinary actions.</li>
+            <li>Take care of club equipment and facilities. Report damaged equipment immediately.</li>
+          </ul>
+
+          <p style="color:var(--muted)"><strong>Kit &amp; Personal Items</strong></p>
+          <ul>
+            <li>Wear appropriate training kit and boots; maintain personal hygiene.</li>
+            <li>Label personal items; the club is not responsible for lost valuables.</li>
+          </ul>
+
+          <p style="color:var(--muted)"><strong>Communication</strong></p>
+          <ul>
+            <li>Check team messages regularly for schedule changes, and confirm availability when requested.</li>
+            <li>Report any concerns about teammates, staff or welfare to the Head Coach or an appointed club official.</li>
+          </ul>
+
+          <p style="color:var(--muted)"><strong>Final Notes</strong></p>
+          <ul>
+            <li>These rules are designed to keep the team safe, respectful and competitive. Management reserves the right to update these terms; players will be notified of changes.</li>
+            <li>By participating in club activities you agree to follow these rules and accept the disciplinary framework outlined above.</li>
+          </ul>
+
+          <p style="margin-top:10px; color:var(--muted); font-size:13px">If you would like any specific clause added or changed (for example medical waiver wording or detailed appeals process), provide the exact text and it will be included.</p>
+        </div>
+      `;
+      return html;
+    }
+
+  </script>
 </body>
 </html>
